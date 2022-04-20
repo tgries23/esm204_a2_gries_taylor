@@ -1,0 +1,27 @@
+---
+title: "Assignment 2"
+author: "Taylor Gries"
+date: '2022-04-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+library(broom)
+```
+
+##### Notes:
+
+- Current (i.e. baseline) water use in these districts 1 is: Kern = 150 AF, Mojave = 140 AF, Antelope = 220 AF, and Ventura = 245 AF.
+
+- Prices are in $/Acre Foot and quantities are in Acre Feet (AF).
+
+```{r}
+# read in the data
+water <- read_csv(here("data", "Water_Districts.csv")) %>% 
+  clean_names()
+```
+
