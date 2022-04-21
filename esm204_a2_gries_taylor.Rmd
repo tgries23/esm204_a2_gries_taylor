@@ -106,44 +106,51 @@ mc_predict_df <- mc_predict %>%
 
 # Abatement (Reduction) = Baseline Use - Current Use
 
-# Kern Baseline = 150 -> 2.29(A) 
-# 2.29(150 - A) -> 343.5 - 2.29A
+# Kern Baseline = 150 
 
 kern_bl <- 150
 kern_data <- mc_predict_df %>%
   filter(district %in% "Kern") %>%
-  mutate(demand = kern_baseline - reduction)
+  mutate(demand = kern_bl - reduction)
 
 ggplot(kern_data, aes(x = demand, y = mc_predict)) +
   geom_line() + 
-  labs(x = 'water demand (AF)', y = '$/AF')
+  labs(x = 'Water Demand (AF)', y = '$/AF')
 
-# Ventura (Baseline = 245) -> 1.78(A)
-# 1.78(245 - A) -> 436.1 - 1.78A
-ventura_demand <- function(reduction){
- demand = 436.1 - 1.78*(reduction)
-return(demand)
-}
+# Ventura Baseline = 245
+ventura_bl <- 245
+ventura_data <- mc_predict_df %>%
+  filter(district %in% "Ventura") %>%
+  mutate(demand = ventura_bl - reduction)
 
-# Mojave Baseline = 140 -> 3.8(A)
-# 3.8(140 - A) -> 532 - 3.8A
-mojave_demand <- function(reduction){
- demand = 532 - 3.8*(reduction)
-return(demand)
-}
+ggplot(ventura_data, aes(x = demand, y = mc_predict)) +
+  geom_line() + 
+  labs(x = 'Water Demand (AF)', y = '$/AF')
 
-# Antelope Baseline = 220 -> 2.86(A)
-# 2.86(220 - A) -> 629.2 - 2.86A
-antelope_demand <- function(reduction){
- demand = 629.2 - 2.86*(reduction)
-return(demand)
-}
+# Mojave Baseline = 140 
+mojave_bl <- 140
+mojave_data <- mc_predict_df %>%
+  filter(district %in% "Mojave") %>%
+  mutate(demand = mojave_bl - reduction)
 
+ggplot(mojave_data, aes(x = demand, y = mc_predict)) +
+  geom_line() + 
+  labs(x = 'Water Demand (AF)', y = '$/AF')
+
+
+# Antelope Baseline = 220 
+antelope_bl <- 220
+antelope_data <- mc_predict_df %>%
+  filter(district %in% "Antelope") %>%
+  mutate(demand = mojave_bl - reduction)
+
+ggplot(antelope_data, aes(x = demand, y = mc_predict)) +
+  geom_line() + 
+  labs(x = 'Water Demand (AF)', y = '$/AF')
 ```
 
 ```{r}
-ggplot(data = mc_predict_df, aes(x = reduction, y = mc)) +
-  geom_line(aes(color = district, ymax = 650)) +
+
 
 ```
 
