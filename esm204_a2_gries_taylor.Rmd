@@ -104,6 +104,11 @@ mc_predict_df <- mc_predict %>%
 
 # Part 2
 
+Using your estimated marginal abatement cost curves, derive each district’s demand curve for water.
+In other words, how much would each district be willing to pay for the right to use the first AF of water,
+second AF, etc.? Plot each district’s demand curve on a single graph. Which sector is willing to pay the
+most for the first AF of water?
+
 ```{r}
 # Generate demand by substituting Abatement = Baseline - Use 
 
@@ -171,16 +176,7 @@ ggplot(data = demand_df, aes(x = demand, y = mc_predict, color = district)) +
        color = "District Name")
 
 ```
-
-
-# Part 2
-
-Using your estimated marginal abatement cost curves, derive each district’s demand curve for water.
-In other words, how much would each district be willing to pay for the right to use the first AF of water,
-second AF, etc.? Plot each district’s demand curve on a single graph. Which sector is willing to pay the
-most for the first AF of water?
-
-
+**Figure 2:**
 
 
 # Part 3
@@ -198,6 +194,14 @@ and (4) calculate the tax revenue generated.
 baseline use), so the 500 AF target is met. Trade is not allowed. Stringency is defined as the
 magnitude of the fraction.
 
+(1) 
+
+(2)
+
+(3)
+
+(4)
+
 
 ## B. 
 
@@ -205,11 +209,27 @@ magnitude of the fraction.
 that water use is reduced to the 500 AF target. Stringency is defined as the magnitude of the
 tax.
 
+(1)
+
+(2)
+
+(3)
+
+(4)
+
 ## C.
 
 **Cap and trade.** Cap water use as in part (a), but after those caps are set, allow trade across
 districts. How much water is used by each district after trade? Stringency is the same as in part
 (a).
+
+(1)
+
+(2)
+
+(3)
+
+(4)
 
 
 # Part 4
