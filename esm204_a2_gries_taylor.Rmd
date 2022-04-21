@@ -62,7 +62,6 @@ ggplot(data = water_clean,
 ```
 **Figure 1**: 
 
-# Part 2
 
 ```{r}
 # Define linear regression models forcing 0 intercept
@@ -100,6 +99,12 @@ mc_predict_df <- mc_predict %>%
                names_to = 'district',
                values_to = 'mc_predict')
 
+```
+
+
+# Part 2
+
+```{r}
 # Generate demand by substituting Abatement = Baseline - Use 
 
 # MC = Slope * Abatement
@@ -147,10 +152,23 @@ antelope_data <- mc_predict_df %>%
 ggplot(antelope_data, aes(x = demand, y = mc_predict)) +
   geom_line() + 
   labs(x = 'Water Demand (AF)', y = '$/AF')
+
+
+demand_df <- bind_rows('Kern' = kern_data,
+                           'Ventura' = ventura_data,
+                           'Mojave' = mojave_data, 
+                           'Antelope' = antelope_data, .id = 'district')
 ```
 
-```{r}
 
+```{r}
+ggplot(data = demand_df, aes(x = demand, y = mc_predict, color = district)) + 
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Predicted Marginal Demand Curves for Each District", 
+       x = "Water Demand (AF)", 
+       y = "$/AF",
+       color = "District Name")
 
 ```
 
