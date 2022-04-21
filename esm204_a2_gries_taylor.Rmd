@@ -26,16 +26,17 @@ library(equatiomatic)
 # read in the data
 water <- read_csv(here("data", "Water_Districts.csv")) %>% 
   clean_names()
+  
 ```
 
 ```{r}
 water_clean <- water %>% 
-  pivot_longer(cols = c(3:6), names_to = "county", values_to = "mc") %>% 
-  mutate(county = case_when(
-    county == "mc_kern" ~ "Kern", 
-    county == "mc_antelope" ~ "Antelope", 
-    county == "mc_ventura" ~ "Ventura", 
-    county == "mc_mojave" ~ "Mojave"
+  pivot_longer(cols = c(3:6), names_to = "district", values_to = "mc") %>% 
+  mutate(district = case_when(
+    district == "mc_kern" ~ "Kern", 
+    district == "mc_antelope" ~ "Antelope", 
+    district == "mc_ventura" ~ "Ventura", 
+    district == "mc_mojave" ~ "Mojave"
   ))
 ```
 
@@ -51,30 +52,26 @@ the remainder of this analysis.
 
 ```{r}
 ggplot(data = water_clean, 
-       aes(x = reduction, y = mc, color = county)) +
+       aes(x = reduction, y = mc, color = district)) +
   geom_line() + 
   geom_smooth(method = "lm") +
-  theme_minimal(14) +
+  theme_minimal() +
   labs(y = "Marginal Cost of Abatement ($/AF)", 
        x = "Reduction (AF)",
-       color = "County")
+       color = "District Name")
 ```
 **Figure 1**: 
 
-
 # Part 2
-
-Using your estimated marginal abatement cost curves, derive each district’s demand curve for water.
-In other words, how much would each district be willing to pay for the right to use the first AF of water,
-second AF, etc.? Plot each district’s demand curve on a single graph. Which sector is willing to pay the
-most for the first AF of water?
 
 ```{r}
 # Define linear regression models forcing 0 intercept
-lm_kern <- lm(mc_kern ~ 0 + reduction, data = water)
-lm_ventura <- lm(mc_ventura ~ 0 + reduction, data = water)
-lm_antelope <- lm(mc_antelope ~ 0 + reduction, data = water)
-lm_mojave <- lm(mc_mojave ~ 0 + reduction, data = water)
+
+# linear regression
+lm_kern <- lm(mc_kern ~ 0 + reduction, data = water) # get equation P = 2.29A 
+lm_ventura <- lm(mc_ventura ~ 0 + reduction, data = water) # get equation P = 1.78(A) 
+lm_antelope <- lm(mc_antelope ~ 0 + reduction, data = water) # get equation P = 3.8(A) 
+lm_mojave <- lm(mc_mojave ~ 0 + reduction, data = water) # get equation P = 2.86(A) 
 
 
 # Find slopes
@@ -84,26 +81,81 @@ antelope_slope <- lm_antelope$coefficient[1]
 ventura_slope <- lm_ventura$coefficient[1]
 
 # Predict by multiplying a vector of abatement number by the slope
-kern_predict <- kern_slope*seq(0, 150)
-ventura_predict <- ventura_slope*seq(0, 150)
-antelope_predict <- antelope_slope*seq(0, 150)
-mojave_predict <- mojave_slope*seq(0, 150)
+kern_predict <- predict(lm_kern)
+ventura_predict <- predict(lm_ventura)
+antelope_predict <- predict(lm_antelope)
+mojave_predict <- predict(lm_mojave)
 
-# Create dataset
+# Create data set
 
-mc_predict_df <- data.frame(kern_predict, mojave_predict, antelope_predict, ventura_predict) %>% 
-  rename(kern = kern_predict,
-         mojave = mojave_predict,
-         antelope = antelope_predict,
-         ventura = ventura_predict) %>% 
-  pivot_longer(kern:ventura, names_to = 'county', values_to = 'mc_predict')
+mc_predict <- data.frame(water, kern_predict, mojave_predict, antelope_predict, ventura_predict) 
 
-# Generate demand by substituting Abatement = Baseline - Use
+mc_predict_df <- mc_predict %>% 
+  select(reduction, kern_predict, mojave_predict, antelope_predict, ventura_predict) %>% 
+  rename(Kern = kern_predict,
+         Mojave = mojave_predict,
+         Antelope = antelope_predict,
+         Ventura = ventura_predict) %>% 
+  pivot_longer(cols = c(Kern, Mojave, Antelope, Ventura),
+               names_to = 'district',
+               values_to = 'mc_predict')
+
+# Generate demand by substituting Abatement = Baseline - Use 
+
+# MC = Slope * Abatement
+
+# Abatement (Reduction) = Baseline Use - Current Use
+
+# Kern Baseline = 150 -> 2.29(A) 
+# 2.29(150 - A) -> 343.5 - 2.29A
+
+kern_bl <- 150
+kern_data <- mc_predict_df %>%
+  filter(district %in% "Kern") %>%
+  mutate(demand = kern_baseline - reduction)
+
+ggplot(kern_data, aes(x = demand, y = mc_predict)) +
+  geom_line() + 
+  labs(x = 'water demand (AF)', y = '$/AF')
+
+# Ventura (Baseline = 245) -> 1.78(A)
+# 1.78(245 - A) -> 436.1 - 1.78A
+ventura_demand <- function(reduction){
+ demand = 436.1 - 1.78*(reduction)
+return(demand)
+}
+
+# Mojave Baseline = 140 -> 3.8(A)
+# 3.8(140 - A) -> 532 - 3.8A
+mojave_demand <- function(reduction){
+ demand = 532 - 3.8*(reduction)
+return(demand)
+}
+
+# Antelope Baseline = 220 -> 2.86(A)
+# 2.86(220 - A) -> 629.2 - 2.86A
+antelope_demand <- function(reduction){
+ demand = 629.2 - 2.86*(reduction)
+return(demand)
+}
 
 ```
 
-  
+```{r}
+ggplot(data = mc_predict_df, aes(x = reduction, y = mc)) +
+  geom_line(aes(color = district, ymax = 650)) +
+
 ```
+
+
+# Part 2
+
+Using your estimated marginal abatement cost curves, derive each district’s demand curve for water.
+In other words, how much would each district be willing to pay for the right to use the first AF of water,
+second AF, etc.? Plot each district’s demand curve on a single graph. Which sector is willing to pay the
+most for the first AF of water?
+
+
 
 
 # Part 3
