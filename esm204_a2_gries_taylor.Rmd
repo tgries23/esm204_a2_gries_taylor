@@ -236,7 +236,7 @@ mojave_cost <- cost(lm_mojave, quantity_abate = 47.43)
 antelope_cost <- cost(lm_antelope, quantity_abate = 74.36) 
 ventura_cost <- cost(lm_ventura, quantity_abate = 82.81)
 
-district_costs <- tibble(kern_cost, mojave_cost, antelope_cost, ventura_cost) 
+district_costs_a <- tibble(kern_cost, mojave_cost, antelope_cost, ventura_cost) 
 district_costs %>% 
   kable(col.names = c("Kern",
                       "Mojave", 
@@ -256,27 +256,108 @@ There is no tax revenue generated for this scenario.
 that water use is reduced to the 500 AF target. Stringency is defined as the magnitude of the
 tax.
 
+# linear regression
+Kern: P = 2.29A 
+Ventura: P = 1.78(A) 
+Antelope: P = 3.8(A) 
+Mojave: P = 2.86(A) 
+
+MCagg = A(1/2.29 +1/1.78 +1/3.8 + 1/2.86)
+A = .621 (slope of the aggregate line)
+
 (1)
+
+```{r}
+aggMC <- function(x){
+  return(0.621*x)
+}
+aggMC(255)
+```
+
+The tax should be set to $158.36 for a reduction of 255 AF. 
 
 (2)
 
+```{r}
+total_cost_b = 255*158.36*.05
+```
+
+The total cost is $2,019.03.
+
 (3)
 
+```{r}
+kern_cost_b = 158.355/2.29 * 158.36 * 0.05
+
+ventura_cost_b = 158.355/1.78 * 158.36 * 0.05
+
+mojave_cost_b = 158.355/3.8 * 158.36 * 0.05
+
+antelope_cost_b = 158.355/2.86 * 158.36 * 0.05
+
+district_costs_b <- tibble(kern_cost_b, mojave_cost_b, antelope_cost_b, ventura_cost_b) 
+district_costs %>% 
+  kable(col.names = c("Kern",
+                      "Mojave", 
+                      "Antelope", 
+                      "Ventura")) %>% 
+  kable_minimal()
+```
+
 (4)
+
+```{r}
+ggplot(data = demand_df, aes(x = demand, y = mc_predict, color = district)) + 
+  geom_line() +
+  geom_abline(aes(intercept = 0, slope = 0.621, colour = "Aggregate")) +
+  theme_minimal() +
+  labs(title = "Predicted Marginal Demand Curves per District", 
+       x = "Water Demand (AF)", 
+       y = "$/AF",
+       color = "District Name")
+
+tax_b = 158.36*255
+```
+
+Tax revenue is the tax rate times the quantity abated which equals $40,381.80.
 
 ## C.
 
-**Cap and trade.** Cap water use as in part (a), but after those caps are set, allow trade across
-districts. How much water is used by each district after trade? Stringency is the same as in part
-(a).
+**Cap and trade.** Cap water use as in part (a), but after those caps are set, allow trade across districts. How much water is used by each district after trade? Stringency is the same as in part (a).
 
 (1)
 
+```{r}
+kern_cost_c =(158.36/2.29)/kern_bl #0.4610044
+ventura_cost_c = (158.36/1.78)/ventura_bl#0.3631163
+mojave_cost_c = (158.36/3.8)/mojave_bl #0.2976598
+antelope_cost_c = (158.36/2.86)/antelope_bl #0.2516767
+```
+
+kern: b - (158.355/2.29) / b * 158.36 * 0.05 = 547.5349
+mojave: 158.355/3.8 * 158.36 * 0.05 * 0.05 = 329.9618
+antelope: 158.355/2.86 * 158.36 * 0.05 * 0.05 = 438.4108
+ventura: 158.355/1.78 * 158.36 * 0.05 = 704.4128
+
 (2)
+
+```{r}
+total_cost_c = 255*158.36*.05
+```
+
+The total cost is $2,019.03
 
 (3)
 
+This is also the same as the costs under the tax. 
+Kern: 158.355/2.29 * 158.36 * 0.05 = 547.5349
+Mojave: 158.355/3.8 * 158.36 * 0.05 * 0.05 = 329.9618
+Antelope: 158.355/2.86 * 158.36 * 0.05 * 0.05 = 438.4108
+Ventura: 158.355/1.78 * 158.36 * 0.05 = 704.4128
+
 (4)
+
+There is no tax revenue generated because there is no tax. 
 
 
 # Part 4
