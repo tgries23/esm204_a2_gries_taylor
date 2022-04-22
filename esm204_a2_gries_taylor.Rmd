@@ -122,7 +122,7 @@ most for the first AF of water?
 kern_bl <- 150
 kern_data <- mc_predict_df %>%
   filter(district %in% "Kern") %>%
-  mutate(demand = kern_bl - reduction)
+  mutate(demand = kern_slope * (kern_bl - reduction))
 
 ggplot(kern_data, aes(x = demand, y = mc_predict)) +
   geom_line() + 
@@ -132,7 +132,7 @@ ggplot(kern_data, aes(x = demand, y = mc_predict)) +
 ventura_bl <- 245
 ventura_data <- mc_predict_df %>%
   filter(district %in% "Ventura") %>%
-  mutate(demand = ventura_bl - reduction)
+  mutate(demand = ventura_slope * (ventura_bl - reduction))
 
 ggplot(ventura_data, aes(x = demand, y = mc_predict)) +
   geom_line() + 
@@ -142,7 +142,7 @@ ggplot(ventura_data, aes(x = demand, y = mc_predict)) +
 mojave_bl <- 140
 mojave_data <- mc_predict_df %>%
   filter(district %in% "Mojave") %>%
-  mutate(demand = mojave_bl - reduction)
+  mutate(demand = mojave_slope * (mojave_bl - reduction))
 
 ggplot(mojave_data, aes(x = demand, y = mc_predict)) +
   geom_line() + 
@@ -153,7 +153,7 @@ ggplot(mojave_data, aes(x = demand, y = mc_predict)) +
 antelope_bl <- 220
 antelope_data <- mc_predict_df %>%
   filter(district %in% "Antelope") %>%
-  mutate(demand = mojave_bl - reduction)
+  mutate(demand = antelope_slope * (antelope_bl - reduction))
 
 ggplot(antelope_data, aes(x = demand, y = mc_predict)) +
   geom_line() + 
@@ -168,8 +168,8 @@ demand_df <- bind_rows('Kern' = kern_data,
 
 
 ```{r}
-ggplot(data = demand_df, aes(x = demand, y = mc_predict, color = district)) + 
-  geom_line() +
+ggplot(data = demand_df, aes(x = reduction, color = district)) + 
+  geom_line(aes(y = demand)) +
   theme_minimal() +
   labs(title = "Predicted Marginal Demand Curves for Each District", 
        x = "Water Demand (AF)", 
@@ -219,7 +219,6 @@ total_cost_a = 2938.55 + 4278.78 + 7900.53 + 6089.61
 ```
 The total cost is $21,207.47
 
-
 (3)
 
 ```{r}
@@ -236,8 +235,7 @@ mojave_cost <- cost(lm_mojave, quantity_abate = 47.43)
 antelope_cost <- cost(lm_antelope, quantity_abate = 74.36) 
 ventura_cost <- cost(lm_ventura, quantity_abate = 82.81)
 
-district_costs_a <- tibble(kern_cost, mojave_cost, antelope_cost, ventura_cost) 
-district_costs %>% 
+district_cost_a <- tibble(kern_cost, mojave_cost, antelope_cost, ventura_cost) %>%
   kable(col.names = c("Kern",
                       "Mojave", 
                       "Antelope", 
@@ -295,8 +293,7 @@ mojave_cost_b = 158.355/3.8 * 158.36 * 0.05
 
 antelope_cost_b = 158.355/2.86 * 158.36 * 0.05
 
-district_costs_b <- tibble(kern_cost_b, mojave_cost_b, antelope_cost_b, ventura_cost_b) 
-district_costs %>% 
+district_costs_b <- tibble(kern_cost_b, mojave_cost_b, antelope_cost_b, ventura_cost_b) %>%
   kable(col.names = c("Kern",
                       "Mojave", 
                       "Antelope", 
@@ -324,6 +321,24 @@ Tax revenue is the tax rate times the quantity abated which equals $40,381.80.
 ## C.
 
 **Cap and trade.** Cap water use as in part (a), but after those caps are set, allow trade across districts. How much water is used by each district after trade? Stringency is the same as in part (a).
+
+Notes:
+District 1 has relatively low value of last unit of water used, District 2 has relatively high. District 2 wants more water, District 1 doesn't need as much - trading could make both districts better off 
+
+How do we solve
+Agg curves
+Go to Q bar 
+Read up 
+Read over 
+Solution after trading is new Quantities 
+Total cost much lower or total benefit higher
+
+If you compare cap without trade to cap with trade, everyone benefits from possibly of trade. How do you calculate how much better off each party is?
+
+Without trade: box from Q1 to origin - under marignal benefit curve
+With trade: revenue (2 pay 1) Q1a to Q1 (area same but including revenue from price p)
+
+
 
 (1)
 
@@ -362,8 +377,18 @@ There is no tax revenue generated because there is no tax.
 
 # Part 4
 
-A severe drought hits California, and it is necessary to reduce water use from 500 AF down to 300 AF. Your
-job is to estimate the cost of the drought (i.e., the cost of reducing water use from 500 AF to 300 AF) to
-each irrigation district under each policy. Considering the entire jump from status quo (755 AF) to the
-drought (300 AF), which policy is preferred by each irrigation district? How does your answer depend on
-how rights are allocated to each district (in policies (a) and (c))2? 
+A severe drought hits California, and it is necessary to reduce water use from 500 AF down to 300 AF. Your job is to estimate the cost of the drought (i.e., the cost of reducing water use from 500 AF to 300 AF) to each irrigation district under each policy. Considering the entire jump from status quo (755 AF) to the drought (300 AF), which policy is preferred by each irrigation district? How does your answer depend on how rights are allocated to each district (in policies (a) and (c))2? 
+
+Calcualte the cost of reducing from 755 AF to 300 AF and subtract the cost of reducing from 755 AF to 500 AF from that cost.
+
+```{r}
+#kern 
+(282.555/2.29 * 282.555 * 0.05) - (158.355/2.29 * 158.36 * 0.05) #1195.638
+#mojave
+(282.555/3.8 * 282.555 * 0.05) - (158.355/3.8 * 158.36 * 0.05) #720.5293
+#antelope
+(282.555/2.86 * 282.555 * 0.05) - (158.355/2.86 * 158.36 * 0.05) #957.3467
+#ventura
+(282.555/1.78 * 282.555 * 0.05) - (158.355/1.78 * 158.36 * 0.05) #1538.209
+```
+
