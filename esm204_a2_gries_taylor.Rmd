@@ -195,6 +195,15 @@ and (4) calculate the tax revenue generated.
 baseline use), so the 500 AF target is met. Trade is not allowed. Stringency is defined as the
 magnitude of the fraction.
 
+Notes from office hours:
+
+Equal marginal principle not satisfied - another way to get to Q bar at lower cost 
+
+No tax revenue - would be box from t to district slope
+
+Stringency:
+We know amount water use for each district without policy - find percentage to show exacltly water use with reduction 
+
 (1) 
 
 755-500 = 255
@@ -218,6 +227,7 @@ ventura_use_cap <- 245*0.338
 total_cost_a = 2938.55 + 4278.78 + 7900.53 + 6089.61
 ```
 The total cost is $21,207.47
+
 
 (3)
 
@@ -277,10 +287,9 @@ The tax should be set to $158.36 for a reduction of 255 AF.
 (2)
 
 ```{r}
-total_cost_b = 255*158.36*.05
+total_cost_b = 255*158.36*.5
 ```
 
-The total cost is $2,019.03.
 
 (3)
 
@@ -304,14 +313,6 @@ district_costs_b <- tibble(kern_cost_b, mojave_cost_b, antelope_cost_b, ventura_
 (4)
 
 ```{r}
-ggplot(data = demand_df, aes(x = demand, y = mc_predict, color = district)) + 
-  geom_line() +
-  geom_abline(aes(intercept = 0, slope = 0.621, colour = "Aggregate")) +
-  theme_minimal() +
-  labs(title = "Predicted Marginal Demand Curves per District", 
-       x = "Water Demand (AF)", 
-       y = "$/AF",
-       color = "District Name")
 
 tax_b = 158.36*255
 ```
